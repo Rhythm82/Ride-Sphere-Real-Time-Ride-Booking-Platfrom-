@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 
 export const SocketDataContext = createContext();
 
-const socket = io("http://localhost:8080");
+const socket = io(`${import.meta.env.VITE_BASE_URL}`);
 
 const SocketContext = ({ children }) => {
   useEffect(() => {

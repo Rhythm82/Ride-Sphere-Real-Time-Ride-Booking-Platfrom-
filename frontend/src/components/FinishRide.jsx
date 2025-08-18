@@ -8,7 +8,7 @@ const FinishRide = (props) => {
 
   const endRide = async () => {
     const res = await axios.post(
-      `http://localhost:8080/rides/end/ride`,
+      `${import.meta.env.VITE_BASE_URL}/rides/end/ride`,
       {
         rideId: props.ride._id,
       },

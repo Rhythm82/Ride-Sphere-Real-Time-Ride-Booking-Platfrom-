@@ -8,7 +8,7 @@ const CaptainLogout = () => {
 
   try {
     axios
-      .get(`http://localhost:8080/captain/logout`, {
+      .get(`${import.meta.env.VITE_BASE_URL}/captain/logout`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

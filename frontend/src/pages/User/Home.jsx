@@ -68,7 +68,7 @@ const Home = () => {
 
     try {
       const res = await axios.get(
-        `http://localhost:8080/maps/get/suggestions`,
+        `${import.meta.env.VITE_BASE_URL}/maps/get/suggestions`,
         {
           params: { input: e.target.value },
           headers: {
@@ -85,7 +85,7 @@ const Home = () => {
 
     try {
       const res = await axios.get(
-        `http://localhost:8080/maps/get/suggestions`,
+        `${import.meta.env.VITE_BASE_URL}/maps/get/suggestions`,
         {
           params: { input: e.target.value },
           headers: {
@@ -184,7 +184,7 @@ const Home = () => {
   const createRide = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:8080/rides/create`,
+        `${import.meta.env.VITE_BASE_URL}/rides/create`,
         {
           pickup,
           destination,

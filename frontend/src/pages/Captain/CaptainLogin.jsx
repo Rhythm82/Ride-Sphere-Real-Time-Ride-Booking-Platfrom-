@@ -22,7 +22,7 @@ const CaptainLogin = () => {
 
     try {
       const res = await axios
-        .post(`http://localhost:8080/captain/login`, captain)
+        .post(`${import.meta.env.VITE_BASE_URL}/captain/login`, captain)
        
 
       if (res.status === 200) {

@@ -38,7 +38,7 @@ const CaptainSignup = () => {
     };
 
     try {
-      const res = await axios.post(`http://localhost:8080/captain/register`, captainData)
+      const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/captain/register`, captainData)
 
       if (res.status === 201) {
         const data = res.data;
