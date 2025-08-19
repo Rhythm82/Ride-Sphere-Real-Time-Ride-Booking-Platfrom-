@@ -46,7 +46,7 @@ const ConfirmRidePopUp = (props) => {
         <div className="flex items-center gap-3 ">
           <img
             className="h-12 rounded-full object-cover w-12"
-            src="\src\assets\images\user.png"
+            src="https://logodix.com/logo/1944948.png"
             alt=""
           />
           <h2 className="text-lg font-medium capitalize">

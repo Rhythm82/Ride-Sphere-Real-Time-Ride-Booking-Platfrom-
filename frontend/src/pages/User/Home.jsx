@@ -207,7 +207,7 @@ const Home = () => {
     <div className="h-screen relative overflow-hidden">
       <img
         className="w-18 absolute left-7 top-7"
-        src="\src\assets\images\Uber_logo_2018.png"
+        src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
         alt=""
       />
 
