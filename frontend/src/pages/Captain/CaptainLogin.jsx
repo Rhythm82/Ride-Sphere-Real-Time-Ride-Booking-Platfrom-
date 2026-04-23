@@ -10,28 +10,29 @@ const CaptainLogin = () => {
 
   const navigate = useNavigate();
 
-  const {captain, setCaptain}=React.useContext(CaptainDataContext);
-  
+  const { captain, setCaptain } = React.useContext(CaptainDataContext);
+
   const submitHandler = async (e) => {
     e.preventDefault();
 
     const captain = {
       email: email,
-      password
+      password,
     };
 
     try {
-      const res = await axios
-        .post(`${import.meta.env.VITE_BASE_URL}/captain/login`, captain)
-       
+      const res = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/captain/login`,
+        captain,
+      );
 
       if (res.status === 200) {
         const data = res.data;
         setCaptain(data.captain);
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("captainToken", data.token);
         navigate("/captain/home");
       }
-
+      console.log("LOGIN RESPONSE:", res.data);
       setEmail("");
       setPassword("");
     } catch (err) {

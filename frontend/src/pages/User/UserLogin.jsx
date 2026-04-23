@@ -8,7 +8,7 @@ const UserLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const {user, setUser}=useContext(UserDataContext);
+  const { user, setUser } = useContext(UserDataContext);
   const navigate = useNavigate();
 
   const submitHandler = async (e) => {
@@ -20,20 +20,25 @@ const UserLogin = () => {
     };
 
     try {
-      const res = await axios
-        .post(`${import.meta.env.VITE_BASE_URL}/user/login`, userData)
+      const res = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/user/login`,
+        userData,
+      );
 
       if (res.status === 200) {
         const data = res.data;
         setUser(data.user);
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("userToken", data.token);
         navigate("/home");
       }
 
       setEmail("");
       setPassword("");
     } catch (err) {
-      console.error("Login failed:", err.response ? err.response.data : err.message);
+      console.error(
+        "Login failed:",
+        err.response ? err.response.data : err.message,
+      );
       alert("Login failed. Please check your credentials.");
     }
   };

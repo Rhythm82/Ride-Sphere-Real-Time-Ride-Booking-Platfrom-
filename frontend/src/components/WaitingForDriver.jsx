@@ -6,7 +6,7 @@ const WaitingForDriver = (props) => {
       <h5
         className="p-1 text-center w-[93%] absolute top-0"
         onClick={() => {
-          props.waitingForDriver(false);
+          props.setWaitingForDriver(false);
         }}
       >
         <i className="text-3xl text-gray-200 ri-arrow-down-wide-line"></i>
@@ -26,7 +26,9 @@ const WaitingForDriver = (props) => {
             {props.ride?.captain.vehicle.plate}
           </h4>
           <p className="text-sm text-gray-600">Maruti Suzuki Alto</p>
-          <h1 className="text-lg font-semibold"><small>Otp: </small> {props.ride?.otp} </h1>
+          <h1 className="text-lg font-semibold">
+            <small>Otp: </small> {props.ride?.otp}{" "}
+          </h1>
         </div>
       </div>
 

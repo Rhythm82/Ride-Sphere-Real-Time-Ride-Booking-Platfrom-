@@ -9,6 +9,8 @@ const userRoutes = require("./Routes/user.routes.js");
 const captainRoutes = require("./Routes/captain.routes.js");
 const mapsRoutes = require("./Routes/maps.routes.js");
 const rideRoutes = require("./Routes/ride.routes.js");
+const paymentRoutes = require("./routes/payment.routes");
+
 
 const http = require('http');
 const { initializeSocket } = require('./socket');
@@ -28,18 +30,14 @@ app.use("/user", userRoutes);
 app.use("/captain", captainRoutes);
 app.use("/maps", mapsRoutes);
 app.use("/rides", rideRoutes);
-
+app.use("/payment", paymentRoutes);
 app.get("/", (req, res) => {
   res.send("Hi from server");
 });
 
 
 //database connection
-mongoose
-  .connect(MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+mongoose.connect(MONGO_URL)
   .then(() => {
     console.log("\n-> Connected to MongoDB");
 

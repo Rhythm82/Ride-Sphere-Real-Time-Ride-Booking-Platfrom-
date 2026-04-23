@@ -1,6 +1,29 @@
+# dependencies
 node_modules/
+
+# build files
 dist/
+build/
+
+# environment variables
 .env
-Backend/.env
-frontend/.env
-backend/.env
+.env.*
+
+# logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# cache
+.cache/
+coverage/
+
+# optional uploads
+uploads/

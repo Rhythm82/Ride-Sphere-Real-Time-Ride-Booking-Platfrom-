@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const CaptainLogout = () => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("captainToken");
   const navigate = useNavigate();
 
   try {
@@ -15,7 +15,7 @@ const CaptainLogout = () => {
       })
       .then((res) => {
         if (res.status === 200) {
-          localStorage.removeItem("token");
+          localStorage.removeItem("captainToken");
           navigate("/captain/login");
         }
       });

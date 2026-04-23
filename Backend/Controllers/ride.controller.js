@@ -1,4 +1,3 @@
-
 const rideService = require("../services/ride.service.js");
 const { validationResult } = require("express-validator");
 const mapService = require("../services/maps.service.js");
@@ -11,43 +10,52 @@ module.exports.createRide = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { userId, pickup, destination, vehicleType } = req.body;
+  const { pickup, destination, vehicleType } = req.body;
 
   try {
+    // ✅ 1. CREATE RIDE
     const ride = await rideService.createRide({
       user: req.user._id,
       pickup,
       destination,
       vehicleType,
     });
-    res.status(201).json(ride);
 
+    // ✅ 2. GET PICKUP COORDINATES
     const pickupCoordinates = await mapService.getAddressCoordinate(pickup);
 
-    console.log(pickupCoordinates);
-
+    // ✅ 3. FIND NEARBY CAPTAINS
     const captainsInRadius = await mapService.getCaptainsInTheRadius(
-      pickupCoordinates.lng, // FIRST: lng
-      pickupCoordinates.lat, // SECOND: lat
-      2 // km
+      pickupCoordinates.lng,
+      pickupCoordinates.lat,
+      2,
     );
 
-    console.log('pickup lng,lat ->', pickupCoordinates.lng, pickupCoordinates.lat);
-    console.log('found captains:', captainsInRadius.map(c => c._id));
-    
-    console.log(captainsInRadius);
+    // ✅ 4. FILTER BY VEHICLE TYPE
+    const filteredCaptains = captainsInRadius.filter(
+      (captain) => captain.vehicle.vehicleType === vehicleType,
+    );
 
-    ride.otp = "";
+    console.log("Found captains:", filteredCaptains.length);
 
-    const rideWithUser = await rideModel
-      .findOne({ _id: ride._id })
-      .populate("user");
+    // ✅ 5. POPULATE USER
+    const rideWithUser = await rideModel.findById(ride._id).populate("user");
 
-    captainsInRadius.map((captain) => {
-      sendMessageToSocketId(captain.socketId, {
-        event: "new-ride",
-        data: rideWithUser,
-      });
+    // ✅ 6. SEND SOCKET EVENT
+    filteredCaptains.forEach((captain) => {
+      if (captain.socketId) {
+        sendMessageToSocketId(captain.socketId, {
+          event: "new-ride",
+          data: rideWithUser,
+        });
+      }
+    });
+
+    // 🔥🔥🔥 MOST IMPORTANT CHANGE
+    // ✅ 7. SEND RESPONSE WITH CAPTAINS
+    res.status(201).json({
+      ride,
+      captains: filteredCaptains,
     });
   } catch (err) {
     console.log(err);
@@ -71,6 +79,18 @@ module.exports.getFare = async (req, res) => {
   }
 };
 
+module.exports.getUserRideHistory = async (req, res) => {
+  try {
+    const rides = await rideModel
+      .find({ user: req.user._id })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(rides);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports.confirmRide = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -85,14 +105,30 @@ module.exports.confirmRide = async (req, res) => {
       captain: req.captain,
     });
 
-    sendMessageToSocketId(ride.user.socketId, {
-      event: "ride-confirmed",
-      data: ride,
-    });
+    // 🔥 DEBUG START
+    console.log("========== CONFIRM RIDE DEBUG ==========");
+    console.log("Ride ID:", ride._id);
+    console.log("User ID:", ride.user?._id);
+    console.log("User socketId:", ride.user?.socketId);
+    console.log("Captain:", ride.captain?._id);
+    console.log("OTP:", ride.otp);
+    console.log("=======================================");
+    // 🔥 DEBUG END
+
+    if (!ride.user?.socketId) {
+      console.log("❌ ERROR: USER SOCKET ID NOT FOUND");
+    } else {
+      console.log("✅ Sending ride-confirmed to:", ride.user.socketId);
+
+      sendMessageToSocketId(ride.user.socketId, {
+        event: "ride-confirmed",
+        data: ride,
+      });
+    }
 
     return res.status(200).json(ride);
   } catch (err) {
-    console.log(err);
+    console.log("❌ CONFIRM RIDE ERROR:", err);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -145,5 +181,4 @@ module.exports.endRide = async (req, res) => {
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
-  s;
 };

@@ -1,5 +1,3 @@
-
-
 const userModel = require("../Models/user.model.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -13,22 +11,24 @@ module.exports.authUser = async (req, res, next) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const isBlacklisted = await blackListTokenModel.findOne({ token: token });
-
-  if (isBlacklisted) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
   try {
+    const isBlacklisted = await blackListTokenModel.findOne({ token });
+    if (isBlacklisted) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
     const user = await userModel.findById(decoded._id);
-    console.log("Decoded JWT:", decoded);
-    console.log("Found user:", user);
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
 
     req.user = user;
-
-    return next();
+    next();
   } catch (err) {
+    console.log("User auth error:", err.message);
     return res.status(401).json({ message: "Unauthorized" });
   }
 };
@@ -40,21 +40,24 @@ module.exports.authCaptain = async (req, res, next) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const isBlacklisted = await blackListTokenModel.findOne({ token: token });
-
-  if (isBlacklisted) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
   try {
+    const isBlacklisted = await blackListTokenModel.findOne({ token });
+    if (isBlacklisted) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
     const captain = await captainModel.findById(decoded._id);
+
+    if (!captain) {
+      return res.status(401).json({ message: "Captain not found" });
+    }
+
     req.captain = captain;
-
-    return next();
+    next();
   } catch (err) {
-    console.log(err);
-
-    res.status(401).json({ message: "Unauthorized" });
+    console.log("Captain auth error:", err.message);
+    return res.status(401).json({ message: "Unauthorized" });
   }
 };

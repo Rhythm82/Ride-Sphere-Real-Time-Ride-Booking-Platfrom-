@@ -5,6 +5,9 @@ import Home from "./pages/User/Home.jsx";
 import UserLogin from "./pages/User/UserLogin.jsx";
 import UserSignup from "./pages/User/UserSignup.jsx";
 import UserLogout from "./pages/User/UserLogout.jsx";
+import UserRide from "./pages/User/UserRide.jsx";
+import UserRiding from "./pages/User/UserRiding.jsx";
+import UserFinishRide from "./pages/User/UserFinishRide.jsx";
 import UserProtectWrapper from "./pages/User/UserProtectWrapper.jsx";
 
 import CaptainLogin from "./pages/Captain/CaptainLogin.jsx";
@@ -12,8 +15,8 @@ import CaptainSignup from "./pages/Captain/CaptainSignup.jsx";
 import CaptainHome from "./pages/Captain/CaptainHome.jsx";
 import CaptainLogout from "./pages/Captain/CaptainLogout.jsx";
 import CaptainProtectWrapper from "./pages/Captain/CaptainProtectWrapper.jsx";
-import Riding from "./pages/User/Riding.jsx";
 import CaptainRiding from "./pages/Captain/CaptainRiding.jsx";
+import CaptainWaiting from "./pages/Captain/CaptainWaiting.jsx";
 const App = () => {
   return (
     <div>
@@ -31,7 +34,10 @@ const App = () => {
             </UserProtectWrapper>
           }
         />
-        <Route path="/riding" element={<Riding />} />
+
+        <Route path="/user/ride" element={<UserRide />} />
+        <Route path="/user/riding" element={<UserRiding />} />
+        <Route path="/user/finish/ride" element={<UserFinishRide />} />
         <Route
           path="/logout"
           element={
@@ -49,6 +55,7 @@ const App = () => {
             </CaptainProtectWrapper>
           }
         />
+        <Route path="/captain/waiting" element={<CaptainWaiting />} />
 
         <Route path="/captain/riding" element={<CaptainRiding />} />
 

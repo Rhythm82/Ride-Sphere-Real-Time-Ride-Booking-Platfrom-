@@ -11,7 +11,7 @@ const ConfirmRide = (props) => {
       >
         <i className="text-3xl text-gray-200 ri-arrow-down-wide-line"></i>
       </h4>
-      <h3 className="text-2xl font-semibold mb-5">Confirm your Ride</h3>
+      <h3 className="text-2xl font-semibold mb-5">Confirm your ride</h3>
 
       <div className="flex gap-2 justify-between flex-col items-center">
         
@@ -25,15 +25,13 @@ const ConfirmRide = (props) => {
           <div className="flex items-center gap-5 p-3 border-b-2">
             <i className="ri-map-pin-user-fill"></i>
             <div>
-              <h3 className="text-lg font-medium">562/11-A</h3>
-              <p className="text-sm -mt-1 text-gray-600">{props.pickup}</p>
+              <p className="text-lg -mt-1 text-gray-900">{props.pickup}</p>
             </div>
           </div>
           <div className="flex items-center gap-5 p-3 border-b-2">
             <i className="text-lg ri-map-pin-2-fill"></i>
             <div>
-              <h3 className="text-lg font-medium">562/11-A</h3>
-              <p className="text-sm -mt-1 text-gray-600">{props.destination}</p>
+              <p className="text-lg -mt-1 text-gray-900">{props.destination}</p>
             </div>
           </div>
           <div className="flex items-center gap-5 p-3">
@@ -42,7 +40,7 @@ const ConfirmRide = (props) => {
               <h3 className="text-lg font-medium">
                 ₹{props.fare[props.vehicleType]}
               </h3>
-              <p className="text-sm -mt-1 text-gray-600">Cash Cash</p>
+              <p className="text-sm -mt-1 text-gray-600">Total fare</p>
             </div>
           </div>
         </div>

@@ -1,12 +1,10 @@
-
-
 const axios = require("axios");
 const captainModel = require("../Models/captain.model.js");
 
 module.exports.getAddressCoordinate = async (address) => {
   const apiKey = process.env.GOOGLE_MAPS_API;
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-    address
+    address,
   )}&key=${apiKey}`;
 
   try {
@@ -34,7 +32,7 @@ module.exports.getDistanceTime = async (origin, destination) => {
   const apiKey = process.env.GOOGLE_MAPS_API;
 
   const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(
-    origin
+    origin,
   )}&destinations=${encodeURIComponent(destination)}&key=${apiKey}`;
 
   try {
@@ -61,7 +59,7 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
 
   const apiKey = process.env.GOOGLE_MAPS_API;
   const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
-    input
+    input,
   )}&key=${apiKey}`;
 
   try {
@@ -79,16 +77,20 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
   }
 };
 
-module.exports.getCaptainsInTheRadius = async (lat, lng, radiusKm) => {
+module.exports.getCaptainsInTheRadius = async (lng, lat, radiusKm) => {
   try {
     const captains = await captainModel.find({
       location: {
         $near: {
-          $geometry: { type: "Point", coordinates: [lng, lat] },
-          $maxDistance: radiusKm * 2000, // convert km → meters
+          $geometry: {
+            type: "Point",
+            coordinates: [lng, lat], // ✅ correct
+          },
+          $maxDistance: radiusKm * 1000, // ✅ correct
         },
       },
     });
+
     return captains;
   } catch (err) {
     console.error("Error finding captains:", err);

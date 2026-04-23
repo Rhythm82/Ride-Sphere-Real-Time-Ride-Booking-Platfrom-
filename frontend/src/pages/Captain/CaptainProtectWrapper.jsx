@@ -4,7 +4,7 @@ import { CaptainDataContext } from "../../context/CaptainContext";
 import axios from "axios";
 
 const CaptainProtectWrapper = ({ children }) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("captainToken");
   const navigate = useNavigate();
   const { captain, setCaptain } = useContext(CaptainDataContext);
   const [isLoading, setIsLoading] = useState(true);
@@ -12,6 +12,7 @@ const CaptainProtectWrapper = ({ children }) => {
   useEffect(() => {
     if (!token) {
       navigate("/captain/login");
+      return; // 🔥 IMPORTANT
     }
 
     axios
@@ -21,22 +22,19 @@ const CaptainProtectWrapper = ({ children }) => {
         },
       })
       .then((res) => {
-        if (res.status === 200) {
-          setCaptain(res.data.captain);
-          setIsLoading(false);
-        }
+        setCaptain(res.data.captain);
+        setIsLoading(false);
       })
       .catch((err) => {
-        localStorage.removeItem("token");
+        console.log("Auth error:", err);
+        localStorage.removeItem("captainToken");
         navigate("/captain/login");
       });
   }, [token]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  if (isLoading) return <div>Loading...</div>;
 
-  return <div>{children}</div>;
+  return children;
 };
 
 export default CaptainProtectWrapper;

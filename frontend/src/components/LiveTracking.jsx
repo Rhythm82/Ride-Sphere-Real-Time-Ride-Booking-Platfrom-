@@ -1,67 +1,175 @@
-import React, { useEffect, useState } from "react";
-import { LoadScript, GoogleMap, Marker } from '@react-google-maps/api'
+import React, { useEffect, useState, useRef } from "react";
+import {
+  GoogleMap,
+  Marker,
+  DirectionsRenderer,
+  useJsApiLoader,
+} from "@react-google-maps/api";
 
 const containerStyle = {
   width: "100%",
   height: "100%",
 };
 
-const center = {
-  lat: -3.745,
-  lng: -38.523,
-};
+// 🔹 Distance helper (used for movement optimization)
+function getDistanceMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
 
-const LiveTracking = () => {
-  const [currentPosition, setCurrentPosition] = useState(center);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) ** 2;
 
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
+
+const LiveTracking = ({
+  mode = "captain", // default
+  ride,
+  pickupCoords,
+  destinationCoords,
+}) => {
+  const mapRef = useRef(null);
+
+  const [driverLocation, setDriverLocation] = useState(null);
+  const [directions, setDirections] = useState(null);
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+  });
+
+  // ================= DRIVER INITIAL LOCATION =================
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const { latitude, longitude } = position.coords;
-      setCurrentPosition({
-        lat: latitude,
-        lng: longitude,
+    if (ride?.captain?.location?.coordinates) {
+      setDriverLocation({
+        lat: ride.captain.location.coordinates[1],
+        lng: ride.captain.location.coordinates[0],
       });
-    });
+    }
+  }, [ride]);
 
-    const watchId = navigator.geolocation.watchPosition((position) => {
-      const { latitude, longitude } = position.coords;
-      setCurrentPosition({
-        lat: latitude,
-        lng: longitude,
-      });
+  // ================= LIVE LOCATION TRACK =================
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+
+    let lastPosition = null;
+
+    const watchId = navigator.geolocation.watchPosition((pos) => {
+      const newPos = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+      };
+
+      if (!lastPosition) {
+        lastPosition = newPos;
+        setDriverLocation(newPos);
+        return;
+      }
+
+      const moved = getDistanceMeters(
+        lastPosition.lat,
+        lastPosition.lng,
+        newPos.lat,
+        newPos.lng,
+      );
+
+      if (moved > 10) {
+        lastPosition = newPos;
+        setDriverLocation(newPos);
+      }
     });
 
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
+  // ================= ROUTE LOGIC =================
   useEffect(() => {
-    const updatePosition = () => {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const { latitude, longitude } = position.coords;
+    if (!isLoaded) return;
 
-        console.log("Position updated:", latitude, longitude);
-        setCurrentPosition({
-          lat: latitude,
-          lng: longitude,
-        });
-      });
+    const service = new window.google.maps.DirectionsService();
+
+    // 🚕 DRIVER → PICKUP (USED BY BOTH waiting + captain)
+    if (
+      (mode === "waiting" || mode === "captain") &&
+      driverLocation &&
+      pickupCoords
+    ) {
+      service.route(
+        {
+          origin: driverLocation,
+          destination: pickupCoords,
+          travelMode: window.google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          if (status === "OK") {
+            setDirections(result);
+          }
+        },
+      );
+    }
+
+    // 🚗 PICKUP → DESTINATION (RIDE STARTED)
+    if (mode === "riding" && pickupCoords && destinationCoords) {
+      service.route(
+        {
+          origin: pickupCoords,
+          destination: destinationCoords,
+          travelMode: window.google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          if (status === "OK") {
+            setDirections(result);
+          }
+        },
+      );
+    }
+  }, [isLoaded, mode, driverLocation, pickupCoords, destinationCoords]);
+
+  // ================= CENTER =================
+  const center = driverLocation ||
+    pickupCoords || {
+      lat: 26.4775,
+      lng: 89.5212,
     };
 
-    updatePosition(); // Initial position update
-
-    const intervalId = setInterval(updatePosition, 1000); // Update every 10 seconds
-  }, []);
+  if (!isLoaded) return <div>Loading map...</div>;
 
   return (
-    <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={currentPosition}
-        zoom={15} 
-      >
-        <Marker position={currentPosition} />
-      </GoogleMap>
-    </LoadScript>
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      center={center}
+      zoom={15}
+      onLoad={(map) => (mapRef.current = map)}
+      options={{
+        disableDefaultUI: true,
+        zoomControl: true,
+      }}
+    >
+      {/* 🚕 DRIVER MARKER (always show) */}
+      {driverLocation && <Marker position={driverLocation} />}
+
+      {/* 📍 PICKUP MARKER (always show if exists) */}
+      {pickupCoords && (
+        <Marker
+          position={pickupCoords}
+          icon="http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+        />
+      )}
+
+      {/* 🎯 DESTINATION MARKER (only when riding) */}
+      {mode === "riding" && destinationCoords && (
+        <Marker
+          position={destinationCoords}
+          icon="http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+        />
+      )}
+
+      {/* 🛣️ ROUTE */}
+      {directions && <DirectionsRenderer directions={directions} />}
+    </GoogleMap>
   );
 };
 
