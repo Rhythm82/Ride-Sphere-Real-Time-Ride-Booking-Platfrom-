@@ -3,7 +3,7 @@ import LiveTracking from "../../components/LiveTracking.jsx";
 import LocationSearchPanel from "../../components/LocationSearchPanel.jsx";
 import VehiclePanel from "../../components/VehiclePanel.jsx";
 import ConfirmRide from "../../components/ConfirmRide.jsx";
-import LookingForDriver from "../../components/LookingFordriver.jsx";
+import LookingForDriver from "../../components/LookingForDriver.jsx";
 import { useSocket } from "../../context/SocketContext.jsx";
 import { UserDataContext } from "../../context/UserContext.jsx";
 import axios from "axios";

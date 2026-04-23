@@ -9,7 +9,7 @@ const userRoutes = require("./Routes/user.routes.js");
 const captainRoutes = require("./Routes/captain.routes.js");
 const mapsRoutes = require("./Routes/maps.routes.js");
 const rideRoutes = require("./Routes/ride.routes.js");
-const paymentRoutes = require("./Routes/payment.routes");
+const paymentRoutes = require("./Routes/payment.routes.js");
 
 
 const http = require('http');
