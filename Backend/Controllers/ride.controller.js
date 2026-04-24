@@ -28,7 +28,7 @@ module.exports.createRide = async (req, res) => {
     const captainsInRadius = await mapService.getCaptainsInTheRadius(
       pickupCoordinates.lng,
       pickupCoordinates.lat,
-      2,
+      3,
     );
 
     // ✅ 4. FILTER BY VEHICLE TYPE

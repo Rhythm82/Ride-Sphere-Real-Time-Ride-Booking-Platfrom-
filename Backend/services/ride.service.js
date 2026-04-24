@@ -40,7 +40,7 @@ async function getFare(pickup, destination) {
         (distanceTime.distance.value / 1000) * perKmRate.motorcycle +
         (distanceTime.duration.value / 60) * perMinuteRate.motorcycle,
     ),
-    
+
     auto: Math.round(
       baseFare.auto +
         (distanceTime.distance.value / 1000) * perKmRate.auto +
@@ -152,8 +152,6 @@ module.exports.startRide = async ({ rideId, otp, captain }) => {
     .select("+otp");
 
   return updatedRide;
-
-  return ride;
 };
 
 module.exports.endRide = async ({ rideId, captain }) => {
